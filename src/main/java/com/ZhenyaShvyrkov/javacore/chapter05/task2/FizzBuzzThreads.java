@@ -3,7 +3,7 @@ import java.util.concurrent.*;
 
 public class FizzBuzzThreads{
     public static void main(String[] args) throws InterruptedException {
-        FizzBuzz fizzBuzz = new FizzBuzz(10);
+        FizzBuzz fizzBuzz = new FizzBuzz(15);
         int [] array = new int[1];
         CyclicBarrier barrier = new CyclicBarrier(4);
 
@@ -11,7 +11,8 @@ public class FizzBuzzThreads{
             fizzBuzz.fizz(() -> {
                 for(int i = 1; i <= fizzBuzz.n; i++) {
                     array[0] = i;
-                    if (array[0] % 3 == 0) {
+                    if(array[0] % 3 == 0 && array[0] % 5 == 0) {}
+                    else if (array[0] % 3 == 0) {
                         System.out.print("fizz");
                         if(i != fizzBuzz.n ){
                             System.out.print(", ");
@@ -31,7 +32,8 @@ public class FizzBuzzThreads{
             fizzBuzz.fizz(() -> {
                 for(int i = 1; i <= fizzBuzz.n; i++) {
                     array[0] = i;
-                    if (array[0] % 5 == 0) {
+                    if(array[0] % 3 == 0 && array[0] % 5 == 0) {}
+                    else if (array[0] % 5 == 0) {
                         System.out.print("buzz");
                         if(i != fizzBuzz.n){
                             System.out.print(", ");
