@@ -1,7 +1,7 @@
 package main.java.com.ZhenyaShvyrkov.javacore.chapter05.task2;
 
-import java.util.concurrent.BrokenBarrierException;
-import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 
 class FizzBuzz{
     final int n;
@@ -28,11 +28,21 @@ class FizzBuzz{
     public static void main(String[] args) throws InterruptedException {
         FizzBuzz fizzBuzz = new FizzBuzz(15);
         int [] array = new int[1];
-        CyclicBarrier barrier = new CyclicBarrier(4);
+        ReentrantLock lock = new ReentrantLock();
+        Condition condition = lock.newCondition();
+        Condition condition1 = lock.newCondition();
+        Condition condition2 = lock.newCondition();
+        Condition condition3 = lock.newCondition();
 
         Thread threadA = new Thread(() -> {
             fizzBuzz.fizz(() -> {
                 for(int i = 1; i <= fizzBuzz.n; i++) {
+                    lock.lock();
+                    try {
+                        condition3.await();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                     array[0] = i;
                     if(array[0] % 3 == 0 && array[0] % 5 == 0) {}
                     else if (array[0] % 3 == 0) {
@@ -41,19 +51,20 @@ class FizzBuzz{
                             System.out.print(", ");
                         }
                     }
-                    try {
-                        barrier.await();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    } catch (BrokenBarrierException e) {
-                        e.printStackTrace();
-                    }
+                    condition.signal();
+                    lock.unlock();
                 }
             });
         });
         Thread threadB = new Thread(() -> {
-            fizzBuzz.fizz(() -> {
+            fizzBuzz.buzz(() -> {
                 for(int i = 1; i <= fizzBuzz.n; i++) {
+                    lock.lock();
+                    try {
+                        condition2.await();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                     array[0] = i;
                     if(array[0] % 3 == 0 && array[0] % 5 == 0) {}
                     else if (array[0] % 5 == 0) {
@@ -62,20 +73,20 @@ class FizzBuzz{
                             System.out.print(", ");
                         }
                     }
-
-                    try {
-                        barrier.await();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    } catch (BrokenBarrierException e) {
-                        e.printStackTrace();
-                    }
+                    condition3.signal();
+                    lock.unlock();
                 }
             });
         });
         Thread threadC = new Thread(() -> {
-            fizzBuzz.fizz(() -> {
+            fizzBuzz.fizzbuzz(() -> {
                 for(int i = 1; i <= fizzBuzz.n; i++) {
+                    lock.lock();
+                    try {
+                        condition1.await();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                     array[0] = i;
                     if (array[0] % 3 == 0 && array[0] % 5 == 0) {
                         System.out.print("fizzbuzz");
@@ -83,19 +94,15 @@ class FizzBuzz{
                             System.out.print(", ");
                         }
                     }
-                    try {
-                        barrier.await();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    } catch (BrokenBarrierException e) {
-                        e.printStackTrace();
-                    }
+                    condition2.signal();
+                    lock.unlock();
                 }
             });
         });
         Thread threadD = new Thread(() -> {
-            fizzBuzz.fizz(() -> {
+            fizzBuzz.number(() -> {
                 for(int i = 1; i <= fizzBuzz.n; i++) {
+                    lock.lock();
                     array[0] = i;
                     if (array[0] % 3 != 0 && array[0] % 5 != 0) {
                         System.out.print(array[0]);
@@ -103,13 +110,13 @@ class FizzBuzz{
                             System.out.print(", ");
                         }
                     }
+                    condition1.signal();
                     try {
-                        barrier.await();
+                        condition.await();
                     } catch (InterruptedException e) {
                         e.printStackTrace();
-                    } catch (BrokenBarrierException e) {
-                        e.printStackTrace();
                     }
+                    lock.unlock();
                 }
             });
         });
